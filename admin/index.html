@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beacon - Admin Desk</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .admin-main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 28px 64px;
+    }
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1fr 372px;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .admin-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .divider {
+      height: 1px;
+      background: var(--border-light);
+      margin: 2px 0;
+    }
+    .children-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+    .children-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #534f49;
+      letter-spacing: 0.04em;
+    }
+    .children-hint {
+      font-size: 11.5px;
+      color: #a39d94;
+    }
+    .children-list-admin {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .add-child-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px;
+      border: 1.5px dashed #cfc8be;
+      background: transparent;
+      border-radius: 11px;
+      color: var(--text-light);
+      font-weight: 600;
+      font-size: 13.5px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .add-child-btn:hover {
+      border-color: var(--text-muted);
+    }
+    .band-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .band-label {
+      font-size: 10px;
+      color: #a39d94;
+      font-weight: 600;
+    }
+    .band-id {
+      font-family: 'SF Mono', 'Monaco', monospace;
+      font-size: 13.5px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      background: #fff;
+      border: 1px solid #ddd8d1;
+      border-radius: 8px;
+      padding: 7px 9px;
+    }
+    .regen-btn {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #ddd8d1;
+      background: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .remove-btn {
+      flex-shrink: 0;
+      width: 30px;
+      height: 30px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #bdb7ad;
+      font-size: 16px;
+    }
+    .save-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 4px;
+    }
+    .saved-toast {
+      font-size: 13px;
+      color: var(--green);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .saved-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+    .right-rail {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .master-band-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .mb-label {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: #7d756a;
+      font-weight: 600;
+    }
+    .mb-id {
+      font-family: 'SF Mono', 'Monaco', monospace;
+      font-size: 13px;
+      color: #cfc7ba;
+      margin-top: 2px;
+    }
+    .lora-status {
+      font-size: 11px;
+      font-family: 'SF Mono', 'Monaco', monospace;
+      color: #5fae7e;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .lora-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #5fae7e;
+      box-shadow: 0 0 8px #5fae7e;
+    }
+    .led-label {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: #5c5448;
+    }
+    .led-name {
+      font-size: 13px;
+      color: #9b9384;
+      font-family: 'SF Mono', 'Monaco', monospace;
+    }
+    .band-buttons {
+      display: flex;
+      gap: 11px;
+    }
+    .select-btn {
+      flex: 1;
+      background: #241f18;
+      border: 1px solid #3a3328;
+      color: #e9e3d8;
+      font-weight: 600;
+      font-size: 12.5px;
+      letter-spacing: 0.06em;
+      padding: 13px;
+      border-radius: 11px;
+      cursor: pointer;
+      font-family: 'SF Mono', 'Monaco', monospace;
+    }
+    .trigger-btn {
+      position: relative;
+      flex: 1.5;
+      background: var(--accent-deep);
+      border: 1px solid var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 12.5px;
+      letter-spacing: 0.06em;
+      padding: 13px;
+      border-radius: 11px;
+      cursor: pointer;
+      overflow: hidden;
+      font-family: 'SF Mono', 'Monaco', monospace;
+      user-select: none;
+    }
+    .trigger-fill {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      z-index: 1;
+      transition: width 0.04s linear;
+    }
+    .trigger-text {
+      position: relative;
+      z-index: 2;
+    }
+    .band-hint {
+      margin: 14px 0 0;
+      font-size: 11.5px;
+      color: #7d756a;
+      line-height: 1.5;
+    }
+    .band-hint b {
+      color: #cfc7ba;
+    }
+    .enrolled-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      color: #a39d94;
+      font-weight: 600;
+    }
+    .enrolled-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 20px;
+      border-bottom: 1px solid #f3f0eb;
+    }
+    .enrolled-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .enrolled-band {
+      font-family: 'SF Mono', 'Monaco', monospace;
+      font-size: 11.5px;
+      color: #a39d94;
+    }
+    .enrolled-count {
+      font-size: 12px;
+      color: var(--text-light);
+      background: #f0ede8;
+      border-radius: 999px;
+      padding: 4px 11px;
+      font-weight: 500;
+    }
+    .alert-btn-white {
+      background: #fff;
+      color: var(--accent);
+      border: none;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 9px 15px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .alert-btn-ghost {
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.4);
+      font-weight: 500;
+      font-size: 13px;
+      padding: 9px 14px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-beacon">
+        <span class="logo-pulse"></span>
+        <span class="logo-dot"></span>
+      </div>
+      <div class="logo-text">
+        <span class="logo-title">BEACON</span>
+        <span class="logo-subtitle">Crowd Child Safety</span>
+      </div>
+      <span class="event-badge">Al-Noor Gathering 2026</span>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <a href="../index.html" class="btn btn-outline" style="text-decoration: none;">Parent View</a>
+    </div>
+  </header>
+
+  <!-- Alert Banner -->
+  <div id="alert-banner" class="alert-banner hidden" style="margin: 0; border-radius: 0;">
+    <span class="alert-dot">&#9679;</span>
+    <div class="alert-content">
+      <div class="alert-title">ALERT BROADCAST &mdash; <span id="alert-name">Child</span> flagged MISSING near <span id="alert-landmark">area</span></div>
+      <div class="alert-meta">Emergency SMS dispatched to <span id="alert-phone">phone</span> &middot; wristband <span id="alert-wristband">ID</span></div>
+    </div>
+    <button id="open-parent-btn" class="alert-btn-white">Open parent's dashboard &rarr;</button>
+    <button id="resolve-alert-btn" class="alert-btn-ghost">Resolve</button>
+  </div>
+
+  <main class="admin-main">
+    <div class="admin-grid">
+      <!-- Registration Form -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-label">NEW ENROLLMENT</div>
+          <h1 class="card-title">Register a family</h1>
+          <p class="card-desc">Link a parent to their Master Band, then add each child. Every child is auto-assigned an index that maps to a physical wristband.</p>
+        </div>
+
+        <div class="card-body" style="display: flex; flex-direction: column; gap: 18px;">
+          <div class="form-row">
+            <label class="label">
+              <span class="label-text">Parent's name</span>
+              <input id="parent-name" class="input" value="Amina Yusuf">
+            </label>
+            <label class="label">
+              <span class="label-text">Parent's phone</span>
+              <input id="parent-phone" class="input input-mono" value="+234 803 555 0142">
+            </label>
+          </div>
+
+          <label class="label" style="max-width: 50%;">
+            <span class="label-text">Master Band ID</span>
+            <input id="master-band-id" class="input input-mono" value="MB-00592">
+          </label>
+
+          <div class="divider"></div>
+
+          <div class="children-header">
+            <span class="children-label">CHILDREN &middot; <span id="child-count">3</span></span>
+            <span class="children-hint">Index &rarr; physical wristband</span>
+          </div>
+
+          <div id="children-list" class="children-list-admin"></div>
+
+          <button id="add-child-btn" class="add-child-btn">
+            <span style="font-size: 17px; line-height: 0;">+</span> Add Child
+          </button>
+
+          <div class="save-row">
+            <button id="save-btn" class="btn btn-dark">Save enrollment</button>
+            <div id="saved-toast" class="saved-toast hidden">
+              <span class="saved-dot"></span>
+              Saved &middot; <span id="saved-count">0</span> wristbands linked
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Rail -->
+      <div class="right-rail">
+        <!-- Master Band Simulator -->
+        <section class="master-band">
+          <div class="master-band-header">
+            <div>
+              <div class="mb-label">MASTER BAND</div>
+              <div class="mb-id" id="mb-display">MB-00592</div>
+            </div>
+            <span class="lora-status"><span class="lora-dot"></span>LoRa</span>
+          </div>
+
+          <div class="led-display">
+            <div style="display: flex; flex-direction: column; gap: 3px;">
+              <span class="led-label">SELECTED INDEX</span>
+              <span class="led-name">&rarr; <span id="led-child-name">Bilal</span></span>
+            </div>
+            <div class="led-index" id="led-index">1</div>
+          </div>
+
+          <div class="band-buttons">
+            <button id="select-btn" class="select-btn">SELECT &#9654;</button>
+            <button id="trigger-btn" class="trigger-btn">
+              <span class="trigger-fill" id="trigger-fill"></span>
+              <span class="trigger-text" id="trigger-text">HOLD TO TRIGGER</span>
+            </button>
+          </div>
+
+          <p class="band-hint">Tap <b>Select</b> to cycle the index. Hold <b>Trigger</b> to broadcast a missing-child packet for index <span id="hint-index">1</span>.</p>
+        </section>
+
+        <!-- Enrolled Families -->
+        <section class="card" style="overflow: hidden;">
+          <div class="enrolled-header">ENROLLED FAMILIES</div>
+          <div id="enrolled-list"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // Initialize
+    Beacon.initDemoData();
+
+    // State
+    let parentName = 'Amina Yusuf';
+    let parentPhone = '+234 803 555 0142';
+    let masterBandId = 'MB-00592';
+    let children = [
+      { index: 1, name: 'Bilal', wristband: 'K7F2Q', status: 'safe', x: 42, y: 48 },
+      { index: 2, name: 'Zaynab', wristband: 'M3X9P', status: 'safe', x: 60, y: 24 },
+      { index: 3, name: 'Omar', wristband: 'T8L4R', status: 'safe', x: 26, y: 74 }
+    ];
+    let bandIndex = 1;
+    let holding = false;
+    let holdStart = 0;
+    let holdRAF = null;
+
+    // Elements
+    const parentNameInput = document.getElementById('parent-name');
+    const parentPhoneInput = document.getElementById('parent-phone');
+    const masterBandInput = document.getElementById('master-band-id');
+    const childCountEl = document.getElementById('child-count');
+    const childrenListEl = document.getElementById('children-list');
+    const addChildBtn = document.getElementById('add-child-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const savedToast = document.getElementById('saved-toast');
+    const savedCountEl = document.getElementById('saved-count');
+    const mbDisplayEl = document.getElementById('mb-display');
+    const ledIndexEl = document.getElementById('led-index');
+    const ledChildNameEl = document.getElementById('led-child-name');
+    const hintIndexEl = document.getElementById('hint-index');
+    const selectBtn = document.getElementById('select-btn');
+    const triggerBtn = document.getElementById('trigger-btn');
+    const triggerFill = document.getElementById('trigger-fill');
+    const triggerText = document.getElementById('trigger-text');
+    const alertBanner = document.getElementById('alert-banner');
+    const alertNameEl = document.getElementById('alert-name');
+    const alertLandmarkEl = document.getElementById('alert-landmark');
+    const alertPhoneEl = document.getElementById('alert-phone');
+    const alertWristbandEl = document.getElementById('alert-wristband');
+    const openParentBtn = document.getElementById('open-parent-btn');
+    const resolveAlertBtn = document.getElementById('resolve-alert-btn');
+    const enrolledListEl = document.getElementById('enrolled-list');
+
+    // Bind inputs
+    parentNameInput.addEventListener('input', e => parentName = e.target.value);
+    parentPhoneInput.addEventListener('input', e => parentPhone = e.target.value);
+    masterBandInput.addEventListener('input', e => {
+      masterBandId = e.target.value;
+      mbDisplayEl.textContent = masterBandId;
+    });
+
+    // Render children
+    function renderChildren() {
+      childCountEl.textContent = children.length;
+
+      childrenListEl.innerHTML = children.map((child, i) => `
+        <div class="child-row">
+          <div class="child-index">${child.index}</div>
+          <input class="input" style="flex:1" value="${child.name}" placeholder="Child's name" data-child="${i}" data-field="name">
+          <div class="band-group">
+            <span class="band-label">BAND</span>
+            <span class="band-id">${child.wristband}</span>
+            <button class="regen-btn" data-regen="${i}" title="Regenerate ID">&#8635;</button>
+          </div>
+          ${child.status === 'missing' ? '<span class="pill pill-missing">MISSING</span>' : '<span class="pill pill-safe">SAFE</span>'}
+          <button class="remove-btn" data-remove="${i}" title="Remove">&times;</button>
+        </div>
+      `).join('');
+
+      // Bind child inputs
+      childrenListEl.querySelectorAll('[data-child]').forEach(input => {
+        input.addEventListener('input', e => {
+          const idx = parseInt(e.target.dataset.child);
+          children[idx].name = e.target.value;
+          updateLedDisplay();
+        });
+      });
+
+      // Bind regen buttons
+      childrenListEl.querySelectorAll('[data-regen]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const idx = parseInt(e.target.dataset.regen);
+          children[idx].wristband = Beacon.generateId();
+          renderChildren();
+        });
+      });
+
+      // Bind remove buttons
+      childrenListEl.querySelectorAll('[data-remove]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const idx = parseInt(e.target.dataset.remove);
+          children.splice(idx, 1);
+          children.forEach((c, i) => c.index = i + 1);
+          if (bandIndex > children.length) bandIndex = Math.max(1, children.length);
+          renderChildren();
+          updateLedDisplay();
+        });
+      });
+    }
+
+    // Update LED display
+    function updateLedDisplay() {
+      ledIndexEl.textContent = bandIndex;
+      hintIndexEl.textContent = bandIndex;
+      const child = children.find(c => c.index === bandIndex);
+      ledChildNameEl.textContent = child ? (child.name || `Child ${child.index}`) : 'none';
+    }
+
+    // Add child
+    addChildBtn.addEventListener('click', () => {
+      children.push({
+        index: children.length + 1,
+        name: '',
+        wristband: Beacon.generateId(),
+        status: 'safe',
+        x: 40 + Math.random() * 20,
+        y: 40 + Math.random() * 20
+      });
+      renderChildren();
+    });
+
+    // Save family
+    saveBtn.addEventListener('click', () => {
+      const family = { parentName, parentPhone, masterBandId, children };
+      Beacon.saveFamily(family);
+      savedCountEl.textContent = children.length;
+      savedToast.classList.remove('hidden');
+      setTimeout(() => savedToast.classList.add('hidden'), 2600);
+      renderEnrolled();
+    });
+
+    // Select button
+    selectBtn.addEventListener('click', () => {
+      if (children.length === 0) return;
+      bandIndex = (bandIndex % children.length) + 1;
+      updateLedDisplay();
+    });
+
+    // Trigger button (hold to activate)
+    function startHold() {
+      if (children.length === 0 || holding) return;
+      holding = true;
+      holdStart = Date.now();
+      triggerText.textContent = 'BROADCASTING...';
+      tick();
+    }
+
+    function tick() {
+      if (!holding) return;
+      const progress = Math.min(1, (Date.now() - holdStart) / 750);
+      triggerFill.style.width = (progress * 100) + '%';
+      if (progress >= 1) {
+        broadcast();
+        endHold();
+      } else {
+        holdRAF = requestAnimationFrame(tick);
+      }
+    }
+
+    function endHold() {
+      if (holdRAF) cancelAnimationFrame(holdRAF);
+      holding = false;
+      triggerFill.style.width = '0%';
+      triggerText.textContent = 'HOLD TO TRIGGER';
+    }
+
+    function broadcast() {
+      const child = children.find(c => c.index === bandIndex);
+      if (!child) return;
+
+      child.status = 'missing';
+      const landmark = Beacon.nearestLandmark(child.x, child.y);
+
+      const alert = {
+        masterBandId,
+        childIndex: bandIndex,
+        childName: child.name || `Child ${child.index}`,
+        wristband: child.wristband,
+        landmark,
+        parentPhone,
+        timestamp: Date.now()
+      };
+
+      Beacon.setAlert(alert);
+      renderChildren();
+      showAlertBanner(alert);
+    }
+
+    triggerBtn.addEventListener('mousedown', startHold);
+    triggerBtn.addEventListener('mouseup', endHold);
+    triggerBtn.addEventListener('mouseleave', endHold);
+    triggerBtn.addEventListener('touchstart', e => { e.preventDefault(); startHold(); });
+    triggerBtn.addEventListener('touchend', endHold);
+
+    // Alert banner
+    function showAlertBanner(alert) {
+      alertNameEl.textContent = alert.childName;
+      alertLandmarkEl.textContent = alert.landmark;
+      alertPhoneEl.textContent = alert.parentPhone;
+      alertWristbandEl.textContent = alert.wristband;
+      alertBanner.classList.remove('hidden');
+    }
+
+    function hideAlertBanner() {
+      alertBanner.classList.add('hidden');
+    }
+
+    openParentBtn.addEventListener('click', () => {
+      // Set session for parent view
+      Beacon.setSession({ phone: parentPhone, verified: true });
+      window.open('../dashboard.html', '_blank');
+    });
+
+    resolveAlertBtn.addEventListener('click', () => {
+      Beacon.clearAlert();
+      children.forEach(c => c.status = 'safe');
+      renderChildren();
+      hideAlertBanner();
+    });
+
+    // Render enrolled families
+    function renderEnrolled() {
+      const families = Beacon.getFamilies();
+      enrolledListEl.innerHTML = families.map(fam => `
+        <div class="enrolled-item">
+          <div>
+            <div class="enrolled-name">${fam.parentName}</div>
+            <div class="enrolled-band">${fam.masterBandId}</div>
+          </div>
+          <span class="enrolled-count">${fam.children.length} kids</span>
+        </div>
+      `).join('');
+    }
+
+    // Check for existing alert on load
+    function checkExistingAlert() {
+      const alert = Beacon.getAlert();
+      if (alert && alert.masterBandId === masterBandId) {
+        showAlertBanner(alert);
+        const child = children.find(c => c.index === alert.childIndex);
+        if (child) child.status = 'missing';
+        renderChildren();
+      }
+    }
+
+    // Initial render
+    renderChildren();
+    updateLedDisplay();
+    renderEnrolled();
+    checkExistingAlert();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beacon - Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .dash-header {
+      background: var(--bg-card);
+      padding: 12px 16px;
+      border-bottom: 1px solid #e9e5df;
+      flex-shrink: 0;
+    }
+    .dash-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .dash-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .dash-logo-icon {
+      position: relative;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+    }
+    .dash-logo-pulse {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.15;
+      animation: beaconPulse 2.6s ease-out infinite;
+    }
+    .dash-logo-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .dash-logo-text {
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      color: var(--text);
+    }
+    .dash-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .dash-user-name {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .dash-user-name b {
+      color: var(--text);
+    }
+
+    /* Map */
+    .map-wrapper {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+    .map-status {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .map-status.alert {
+      background: rgba(198, 93, 78, 0.95);
+    }
+    .map-status.alert .status-text {
+      color: #fff;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      flex-shrink: 0;
+    }
+    .map-status.alert .status-dot {
+      background: #fff;
+      box-shadow: 0 0 6px #fff;
+      animation: beaconBlink 1s steps(1) infinite;
+    }
+    .status-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+    }
+    .status-count {
+      font-size: 12px;
+      color: var(--text-muted);
+      background: #f0ede8;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .map-status.alert .status-count {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+
+    /* Custom markers */
+    .child-marker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      border: 3px solid #fff;
+    }
+    .child-marker.missing {
+      animation: markerPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes markerPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(198, 93, 78, 0.5); }
+      50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(198, 93, 78, 0); }
+    }
+
+    /* Children Panel (Draggable) */
+    .children-panel {
+      background: var(--bg-card);
+      flex-shrink: 0;
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      height: 280px;
+      transition: height 0.3s ease;
+      touch-action: none;
+    }
+    .children-panel.collapsed {
+      height: 52px;
+    }
+    .children-panel.dragging {
+      transition: none;
+    }
+    .children-panel-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 16px 10px;
+      cursor: grab;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .children-panel-header:active {
+      cursor: grabbing;
+    }
+    .children-panel-handle {
+      width: 36px;
+      height: 5px;
+      background: #d0cbc3;
+      border-radius: 3px;
+      margin-bottom: 8px;
+    }
+    .children-panel-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .children-panel-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+    .children-panel-count {
+      font-size: 11px;
+      color: #bbb;
+    }
+    .children-panel-content {
+      flex: 1;
+      overflow-y: auto;
+      border-top: 1px solid #f0ede8;
+    }
+    .children-panel.collapsed .children-panel-content {
+      overflow: hidden;
+    }
+    .child-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f5f2ed;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .child-row:last-child { border-bottom: none; }
+    .child-row:active { background: #f5f2ed; }
+    .child-avatar-sm {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .child-row-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .child-row-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .child-row-location {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+    .child-row-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+    .child-row.missing .live-dot {
+      background: var(--accent);
+      animation: beaconBlink 1s steps(1) infinite;
+    }
+
+    /* Bottom Drawer */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s, visibility 0.25s;
+      z-index: 2000;
+    }
+    .drawer-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+    .drawer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      border-radius: 20px 20px 0 0;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+      z-index: 2001;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .drawer.open {
+      transform: translateY(0);
+    }
+    .drawer-handle {
+      width: 36px;
+      height: 5px;
+      background: #ddd8d0;
+      border-radius: 3px;
+      margin: 10px auto 0;
+    }
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 20px 16px;
+    }
+    .drawer-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .drawer-child-info { flex: 1; }
+    .drawer-child-name {
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .drawer-child-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 3px;
+      font-family: 'SF Mono', 'Monaco', monospace;
+    }
+    .drawer-section {
+      padding: 0 20px 16px;
+    }
+    .drawer-section-title {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .drawer-info-card {
+      background: #f9f7f4;
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .drawer-detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+    }
+    .drawer-detail-row:first-child { padding-top: 0; }
+    .drawer-detail-row:last-child { padding-bottom: 0; }
+    .drawer-detail-row + .drawer-detail-row {
+      border-top: 1px solid #eeebe6;
+    }
+    .drawer-detail-label {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .drawer-detail-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .drawer-actions {
+      padding: 8px 20px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .trigger-btn {
+      position: relative;
+      width: 100%;
+      background: var(--accent-deep);
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      padding: 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      overflow: hidden;
+      font-family: inherit;
+      user-select: none;
+    }
+    .trigger-fill {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      z-index: 1;
+      transition: width 0.04s linear;
+    }
+    .trigger-text {
+      position: relative;
+      z-index: 2;
+    }
+    .close-drawer-btn {
+      width: 100%;
+      background: transparent;
+      border: 1.5px solid #e4e0da;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .found-btn {
+      width: 100%;
+      background: var(--green);
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .hidden { display: none !important; }
+
+    /* Leaflet overrides */
+    .leaflet-control-attribution { font-size: 9px; }
+
+    /* Zone Controls */
+    .zone-controls {
+      position: absolute;
+      bottom: 20px;
+      left: 12px;
+      z-index: 1000;
+      display: flex;
+      gap: 8px;
+    }
+    .zone-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.95);
+      border: none;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      font-family: inherit;
+    }
+    .zone-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+    .zone-btn-icon {
+      font-size: 16px;
+    }
+
+    /* Safe Zone Circle Styling */
+    .safe-zone-circle {
+      fill: rgba(47, 143, 91, 0.15);
+      stroke: var(--green);
+      stroke-width: 2;
+      stroke-dasharray: 5, 5;
+    }
+
+    /* Alert History Panel */
+    .history-toggle {
+      position: absolute;
+      top: 60px;
+      right: 12px;
+      z-index: 1000;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.95);
+      border: none;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .history-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .history-panel {
+      position: absolute;
+      top: 60px;
+      right: 12px;
+      width: 300px;
+      max-height: 350px;
+      background: rgba(255,255,255,0.98);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      z-index: 1001;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .history-panel.open {
+      display: flex;
+    }
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .history-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .history-close {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+    .history-empty {
+      padding: 32px 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .history-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f5f2ed;
+    }
+    .history-item:last-child {
+      border-bottom: none;
+    }
+    .history-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+    .history-dot.resolved {
+      background: var(--green);
+    }
+    .history-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .history-text {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    .history-text b {
+      font-weight: 600;
+    }
+    .history-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Zone Modal */
+    .zone-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 3000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .zone-modal-overlay.open {
+      display: flex;
+    }
+    .zone-modal {
+      background: var(--bg-card);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 340px;
+      padding: 24px;
+    }
+    .zone-modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .zone-modal-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .zone-input-group {
+      margin-bottom: 16px;
+    }
+    .zone-input-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: block;
+    }
+    .zone-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .zone-radius-slider {
+      width: 100%;
+      margin-top: 8px;
+    }
+    .zone-radius-value {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .zone-modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .zone-modal-actions button {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      border: none;
+    }
+    .zone-cancel-btn {
+      background: #f0ede8;
+      color: var(--text);
+    }
+    .zone-save-btn {
+      background: var(--green);
+      color: #fff;
+    }
+
+    /* Zones List in Drawer */
+    .zones-section {
+      padding: 0 20px 16px;
+    }
+    .zone-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: #f9f7f4;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+    .zone-item:last-child {
+      margin-bottom: 0;
+    }
+    .zone-indicator {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--green);
+      opacity: 0.2;
+      border: 2px dashed var(--green);
+      flex-shrink: 0;
+    }
+    .zone-item-info {
+      flex: 1;
+    }
+    .zone-item-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .zone-item-radius {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .zone-delete-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      font-size: 16px;
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+    }
+    .spinner.dark {
+      border-color: rgba(0,0,0,0.1);
+      border-top-color: var(--text);
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .btn-loading {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    /* Zone Warning Banner */
+    .zone-warning {
+      position: absolute;
+      top: 52px;
+      left: 12px;
+      right: 12px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: rgba(255, 152, 0, 0.95);
+      color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      animation: slideDown 0.3s ease;
+    }
+    @keyframes slideDown {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .zone-warning-icon {
+      font-size: 18px;
+    }
+    .zone-warning-text {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .zone-warning-dismiss {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="dash-header">
+    <div class="dash-header-top">
+      <div class="dash-logo">
+        <div class="dash-logo-icon">
+          <span class="dash-logo-pulse"></span>
+          <span class="dash-logo-dot"></span>
+        </div>
+        <span class="dash-logo-text">BEACON</span>
+      </div>
+      <div class="dash-user">
+        <span class="dash-user-name">Hi, <b id="parent-name">there</b></span>
+        <button id="signout-btn" class="btn btn-outline" style="font-size: 11px; padding: 6px 12px;">Sign out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map -->
+  <div class="map-wrapper">
+    <div class="map-status" id="map-status">
+      <span class="status-dot"></span>
+      <span class="status-text" id="status-text">All children safe</span>
+      <span class="status-count" id="status-count">3 tracked</span>
+    </div>
+
+    <!-- Zone Warning Banner (hidden by default) -->
+    <div class="zone-warning hidden" id="zone-warning">
+      <span class="zone-warning-icon">&#9888;</span>
+      <span class="zone-warning-text" id="zone-warning-text">Child left safe zone</span>
+      <button class="zone-warning-dismiss" id="zone-warning-dismiss">Dismiss</button>
+    </div>
+
+    <div id="map"></div>
+
+    <!-- Zone Controls -->
+    <div class="zone-controls">
+      <button class="zone-btn" id="add-zone-btn">
+        <span class="zone-btn-icon">&#11044;</span>
+        Add Safe Zone
+      </button>
+    </div>
+
+    <!-- History Toggle -->
+    <button class="history-toggle" id="history-toggle">
+      <span>&#128337;</span>
+      History
+      <span class="history-badge hidden" id="history-badge">0</span>
+    </button>
+
+    <!-- History Panel -->
+    <div class="history-panel" id="history-panel">
+      <div class="history-header">
+        <span class="history-title">Alert History</span>
+        <button class="history-close" id="history-close">&times;</button>
+      </div>
+      <div class="history-list" id="history-list">
+        <div class="history-empty">No alerts yet</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Children Panel (Draggable) -->
+  <div class="children-panel" id="children-panel">
+    <div class="children-panel-header" id="panel-header">
+      <span class="children-panel-handle"></span>
+      <div class="children-panel-title-row">
+        <span class="children-panel-title">YOUR CHILDREN</span>
+        <span class="children-panel-count" id="panel-count">3 tracked</span>
+      </div>
+    </div>
+    <div class="children-panel-content" id="children-list"></div>
+  </div>
+
+  <!-- Bottom Drawer Overlay -->
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+
+  <!-- Bottom Drawer -->
+  <div class="drawer" id="drawer">
+    <div class="drawer-handle"></div>
+    <div class="drawer-header">
+      <div class="drawer-avatar" id="drawer-avatar">B</div>
+      <div class="drawer-child-info">
+        <div class="drawer-child-name" id="drawer-child-name">Child</div>
+        <div class="drawer-child-meta">Wristband: <span id="drawer-wristband">K7F2Q</span></div>
+      </div>
+      <span class="pill pill-safe" id="drawer-status">Safe</span>
+    </div>
+    <div class="drawer-section">
+      <div class="drawer-section-title">LOCATION</div>
+      <div class="drawer-info-card">
+        <div class="drawer-detail-row">
+          <span class="drawer-detail-label">Current zone</span>
+          <span class="drawer-detail-value" id="drawer-location">Main Courtyard</span>
+        </div>
+        <div class="drawer-detail-row">
+          <span class="drawer-detail-label">Signal</span>
+          <span class="drawer-detail-value" id="drawer-signal">Connected</span>
+        </div>
+        <div class="drawer-detail-row">
+          <span class="drawer-detail-label">Safe zone</span>
+          <span class="drawer-detail-value" id="drawer-zone-status">No zones set</span>
+        </div>
+      </div>
+    </div>
+    <div class="drawer-section zones-section" id="zones-section">
+      <div class="drawer-section-title">SAFE ZONES</div>
+      <div id="zones-list"></div>
+    </div>
+    <div class="drawer-actions">
+      <button id="trigger-btn" class="trigger-btn">
+        <span class="trigger-fill" id="trigger-fill"></span>
+        <span class="trigger-text" id="trigger-text">HOLD TO REPORT MISSING</span>
+      </button>
+      <button id="found-btn" class="found-btn hidden">I've Found My Child</button>
+      <button id="close-drawer-btn" class="close-drawer-btn">Close</button>
+    </div>
+  </div>
+
+  <!-- Zone Creation Modal -->
+  <div class="zone-modal-overlay" id="zone-modal-overlay">
+    <div class="zone-modal">
+      <div class="zone-modal-title">Create Safe Zone</div>
+      <div class="zone-modal-desc">Draw a circular boundary around a safe area. You'll be alerted if any child leaves this zone.</div>
+      <div class="zone-input-group">
+        <label class="zone-input-label">Zone Name</label>
+        <input type="text" class="zone-input" id="zone-name-input" placeholder="e.g., Main Prayer Hall">
+      </div>
+      <div class="zone-input-group">
+        <label class="zone-input-label">Radius</label>
+        <input type="range" class="zone-radius-slider" id="zone-radius-slider" min="5" max="40" value="15">
+        <div class="zone-radius-value" id="zone-radius-value">~30 meters</div>
+      </div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-top: 12px;">Tap on the map to place the zone center.</p>
+      <div class="zone-modal-actions">
+        <button class="zone-cancel-btn" id="zone-cancel-btn">Cancel</button>
+        <button class="zone-save-btn" id="zone-save-btn">Place on Map</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    // Check session
+    const session = Beacon.getSession();
+    if (!session || !session.verified) {
+      window.location.href = 'landing.html';
+    }
+
+    // Get family data
+    let family = Beacon.getFamilyByPhone(session.phone);
+    if (!family) {
+      Beacon.initDemoData();
+      family = Beacon.getFamilies()[0];
+    }
+
+    // Map bounds (Redemption Camp, Lagos-Ibadan Expressway)
+    const VENUE_CENTER = [6.8024, 3.9231];
+    const VENUE_BOUNDS = {
+      lat: { min: 6.7990, max: 6.8060 },
+      lng: { min: 3.9180, max: 3.9280 }
+    };
+
+    // Convert x,y (0-100) to lat,lng
+    function toLatLng(x, y) {
+      const lat = VENUE_BOUNDS.lat.max - (y / 100) * (VENUE_BOUNDS.lat.max - VENUE_BOUNDS.lat.min);
+      const lng = VENUE_BOUNDS.lng.min + (x / 100) * (VENUE_BOUNDS.lng.max - VENUE_BOUNDS.lng.min);
+      return [lat, lng];
+    }
+
+    // Initialize map
+    const map = L.map('map', {
+      zoomControl: false,
+      attributionControl: true
+    }).setView(VENUE_CENTER, 17);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // Add zoom control to bottom right
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    // Store markers and zones
+    const markers = {};
+    const zoneCircles = {};
+    let placingZone = false;
+    let pendingZone = null;
+    let zoneViolations = {}; // Track which children are outside zones
+
+    // Create custom marker icon
+    function createMarkerIcon(initial, color, isMissing) {
+      return L.divIcon({
+        className: 'child-marker-wrapper',
+        html: `<div class="child-marker ${isMissing ? 'missing' : ''}" style="background: ${color};">${initial}</div>`,
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
+      });
+    }
+
+    // Elements
+    const parentNameEl = document.getElementById('parent-name');
+    const mapStatus = document.getElementById('map-status');
+    const statusText = document.getElementById('status-text');
+    const statusCount = document.getElementById('status-count');
+    const childrenListEl = document.getElementById('children-list');
+    const childrenPanel = document.getElementById('children-panel');
+    const panelHeader = document.getElementById('panel-header');
+    const panelCount = document.getElementById('panel-count');
+    const signoutBtn = document.getElementById('signout-btn');
+
+    // Drawer elements
+    const drawerOverlay = document.getElementById('drawer-overlay');
+    const drawer = document.getElementById('drawer');
+    const drawerAvatar = document.getElementById('drawer-avatar');
+    const drawerChildName = document.getElementById('drawer-child-name');
+    const drawerWristband = document.getElementById('drawer-wristband');
+    const drawerStatus = document.getElementById('drawer-status');
+    const drawerLocation = document.getElementById('drawer-location');
+    const drawerSignal = document.getElementById('drawer-signal');
+    const triggerBtn = document.getElementById('trigger-btn');
+    const triggerFill = document.getElementById('trigger-fill');
+    const triggerText = document.getElementById('trigger-text');
+    const foundBtn = document.getElementById('found-btn');
+    const closeDrawerBtn = document.getElementById('close-drawer-btn');
+    const drawerZoneStatus = document.getElementById('drawer-zone-status');
+    const zonesSection = document.getElementById('zones-section');
+    const zonesList = document.getElementById('zones-list');
+
+    // Zone elements
+    const addZoneBtn = document.getElementById('add-zone-btn');
+    const zoneModalOverlay = document.getElementById('zone-modal-overlay');
+    const zoneNameInput = document.getElementById('zone-name-input');
+    const zoneRadiusSlider = document.getElementById('zone-radius-slider');
+    const zoneRadiusValue = document.getElementById('zone-radius-value');
+    const zoneCancelBtn = document.getElementById('zone-cancel-btn');
+    const zoneSaveBtn = document.getElementById('zone-save-btn');
+    const zoneWarning = document.getElementById('zone-warning');
+    const zoneWarningText = document.getElementById('zone-warning-text');
+    const zoneWarningDismiss = document.getElementById('zone-warning-dismiss');
+
+    // History elements
+    const historyToggle = document.getElementById('history-toggle');
+    const historyPanel = document.getElementById('history-panel');
+    const historyClose = document.getElementById('history-close');
+    const historyList = document.getElementById('history-list');
+    const historyBadge = document.getElementById('history-badge');
+
+    // State
+    let selectedChild = null;
+    let holding = false;
+    let holdStart = 0;
+    let holdRAF = null;
+
+    // Set header info
+    const firstName = (family.parentName || 'there').split(' ')[0];
+    parentNameEl.textContent = firstName;
+    statusCount.textContent = `${family.children.length} tracked`;
+    panelCount.textContent = `${family.children.length} tracked`;
+
+    // Render safe zones on map
+    function renderSafeZones() {
+      const zones = Beacon.getSafeZones(family.masterBandId);
+
+      // Remove old zone circles
+      Object.values(zoneCircles).forEach(circle => {
+        map.removeLayer(circle);
+      });
+
+      // Add new zone circles
+      zones.forEach(zone => {
+        if (zone.enabled) {
+          const latlng = toLatLng(zone.center.x, zone.center.y);
+          const radiusMeters = zone.radius * 7; // Approximate meters per percentage unit
+
+          zoneCircles[zone.id] = L.circle(latlng, {
+            radius: radiusMeters,
+            color: '#2f8f5b',
+            fillColor: '#2f8f5b',
+            fillOpacity: 0.1,
+            weight: 2,
+            dashArray: '5, 5'
+          }).addTo(map);
+        }
+      });
+    }
+
+    // Render zones list in drawer
+    function renderZonesList() {
+      const zones = Beacon.getSafeZones(family.masterBandId);
+
+      if (zones.length === 0) {
+        zonesSection.style.display = 'none';
+        return;
+      }
+
+      zonesSection.style.display = 'block';
+      zonesList.innerHTML = zones.map(zone => `
+        <div class="zone-item">
+          <div class="zone-indicator"></div>
+          <div class="zone-item-info">
+            <div class="zone-item-name">${zone.name}</div>
+            <div class="zone-item-radius">~${Math.round(zone.radius * 2)} meter radius</div>
+          </div>
+          <button class="zone-delete-btn" data-zone-id="${zone.id}">&times;</button>
+        </div>
+      `).join('');
+
+      // Bind delete handlers
+      zonesList.querySelectorAll('.zone-delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const zoneId = parseInt(btn.dataset.zoneId);
+          Beacon.deleteSafeZone(family.masterBandId, zoneId);
+          renderSafeZones();
+          renderZonesList();
+          render();
+        });
+      });
+    }
+
+    // Check zone violations
+    function checkZoneViolations() {
+      const zones = Beacon.getSafeZones(family.masterBandId);
+      const enabledZones = zones.filter(z => z.enabled);
+
+      if (enabledZones.length === 0) return;
+
+      family.children.forEach(child => {
+        if (child.status === 'missing') return;
+
+        const result = Beacon.isChildInAnySafeZone(child, enabledZones);
+        const wasViolating = zoneViolations[child.index];
+
+        if (!result.inZone && !wasViolating) {
+          // Child just left safe zone
+          zoneViolations[child.index] = true;
+          showZoneWarning(child);
+          Beacon.triggerAlertNotification();
+        } else if (result.inZone && wasViolating) {
+          // Child returned to safe zone
+          zoneViolations[child.index] = false;
+        }
+      });
+    }
+
+    // Show zone warning
+    function showZoneWarning(child) {
+      zoneWarningText.textContent = `${child.name || 'Child'} left the safe zone!`;
+      zoneWarning.classList.remove('hidden');
+    }
+
+    // Render alert history
+    function renderAlertHistory() {
+      const history = Beacon.getAlertHistory();
+      const relevantHistory = history.filter(a => a.masterBandId === family.masterBandId);
+
+      // Update badge
+      const unresolvedCount = relevantHistory.filter(a => !a.resolved).length;
+      if (unresolvedCount > 0) {
+        historyBadge.textContent = unresolvedCount;
+        historyBadge.classList.remove('hidden');
+      } else {
+        historyBadge.classList.add('hidden');
+      }
+
+      if (relevantHistory.length === 0) {
+        historyList.innerHTML = '<div class="history-empty">No alerts yet</div>';
+        return;
+      }
+
+      historyList.innerHTML = relevantHistory.slice(0, 20).map(alert => `
+        <div class="history-item">
+          <div class="history-dot ${alert.resolved ? 'resolved' : ''}"></div>
+          <div class="history-content">
+            <div class="history-text">
+              <b>${alert.childName}</b> was ${alert.resolved ? 'found' : 'reported missing'} near <b>${alert.landmark}</b>
+            </div>
+            <div class="history-meta">
+              ${Beacon.formatTime(alert.timestamp)} &middot; ${Beacon.timeAgo(alert.timestamp)}
+              ${alert.resolved ? ' &middot; Resolved' : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render
+    function render() {
+      const alert = Beacon.getAlert();
+      let hasMissing = false;
+
+      // Check for missing children
+      if (alert && alert.masterBandId === family.masterBandId) {
+        const missingChild = family.children.find(c => c.index === alert.childIndex);
+        if (missingChild) {
+          missingChild.status = 'missing';
+          hasMissing = true;
+        }
+      } else {
+        family.children.forEach(c => c.status = 'safe');
+      }
+
+      // Check zone violations
+      checkZoneViolations();
+
+      // Update status bar
+      if (hasMissing) {
+        mapStatus.classList.add('alert');
+        const missingChild = family.children.find(c => c.status === 'missing');
+        statusText.textContent = `${missingChild.name || 'Child'} reported missing`;
+      } else {
+        mapStatus.classList.remove('alert');
+        statusText.textContent = 'All children safe';
+      }
+
+      // Update markers and list
+      family.children.forEach(child => {
+        const isMissing = child.status === 'missing';
+        const color = isMissing ? 'var(--accent)' : 'var(--green)';
+        const colorHex = isMissing ? '#c65d4e' : '#5fae7e';
+        const initial = (child.name || 'C').charAt(0).toUpperCase();
+        const latlng = toLatLng(child.x, child.y);
+
+        // Update or create marker
+        if (markers[child.index]) {
+          markers[child.index].setLatLng(latlng);
+          markers[child.index].setIcon(createMarkerIcon(initial, colorHex, isMissing));
+        } else {
+          markers[child.index] = L.marker(latlng, {
+            icon: createMarkerIcon(initial, colorHex, isMissing)
+          }).addTo(map);
+          markers[child.index].on('click', () => openDrawer(child.index));
+        }
+      });
+
+      // Render children list
+      const landmark = (child) => Beacon.nearestLandmark(child.x, child.y);
+      childrenListEl.innerHTML = family.children.map(child => {
+        const isMissing = child.status === 'missing';
+        const color = isMissing ? 'var(--accent)' : 'var(--green)';
+        const initial = (child.name || 'C').charAt(0).toUpperCase();
+        const loc = landmark(child);
+        const statusLabel = isMissing ? 'Missing' : 'Live';
+
+        return `
+          <div class="child-row ${isMissing ? 'missing' : ''}" data-child-index="${child.index}">
+            <div class="child-avatar-sm" style="background: ${color};">${initial}</div>
+            <div class="child-row-info">
+              <div class="child-row-name">${child.name || `Child ${child.index}`}</div>
+              <div class="child-row-location">${loc}</div>
+            </div>
+            <div class="child-row-status">
+              <span class="live-dot"></span>
+              ${statusLabel}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Bind click handlers
+      childrenListEl.querySelectorAll('.child-row').forEach(item => {
+        item.addEventListener('click', () => {
+          const index = parseInt(item.dataset.childIndex);
+          openDrawer(index);
+        });
+      });
+
+      // Update drawer if open
+      if (selectedChild) {
+        updateDrawer();
+      }
+    }
+
+    // Open drawer
+    function openDrawer(childIndex) {
+      selectedChild = family.children.find(c => c.index === childIndex);
+      if (!selectedChild) return;
+
+      // Pan map to child
+      const latlng = toLatLng(selectedChild.x, selectedChild.y);
+      map.panTo(latlng);
+
+      updateDrawer();
+      drawerOverlay.classList.add('open');
+      drawer.classList.add('open');
+    }
+
+    // Update drawer
+    function updateDrawer() {
+      if (!selectedChild) return;
+
+      const isMissing = selectedChild.status === 'missing';
+      const color = isMissing ? 'var(--accent)' : 'var(--green)';
+      const initial = (selectedChild.name || 'C').charAt(0).toUpperCase();
+      const landmark = Beacon.nearestLandmark(selectedChild.x, selectedChild.y);
+
+      drawerAvatar.style.background = color;
+      drawerAvatar.textContent = initial;
+      drawerChildName.textContent = selectedChild.name || `Child ${selectedChild.index}`;
+      drawerWristband.textContent = selectedChild.wristband || 'N/A';
+      drawerLocation.textContent = landmark;
+      drawerSignal.textContent = isMissing ? 'Signal lost' : 'Connected';
+
+      // Update zone status
+      const zones = Beacon.getSafeZones(family.masterBandId);
+      const enabledZones = zones.filter(z => z.enabled);
+      if (enabledZones.length === 0) {
+        drawerZoneStatus.textContent = 'No zones set';
+        drawerZoneStatus.style.color = '';
+      } else {
+        const result = Beacon.isChildInAnySafeZone(selectedChild, enabledZones);
+        if (result.inZone) {
+          drawerZoneStatus.textContent = result.zoneName ? `In ${result.zoneName}` : 'Inside zone';
+          drawerZoneStatus.style.color = 'var(--green)';
+        } else {
+          drawerZoneStatus.textContent = 'Outside safe zone';
+          drawerZoneStatus.style.color = 'var(--accent)';
+        }
+      }
+
+      // Render zones list
+      renderZonesList();
+
+      if (isMissing) {
+        drawerStatus.className = 'pill pill-missing';
+        drawerStatus.textContent = 'MISSING';
+        triggerBtn.classList.add('hidden');
+        foundBtn.classList.remove('hidden');
+      } else {
+        drawerStatus.className = 'pill pill-safe';
+        drawerStatus.textContent = 'Safe';
+        triggerBtn.classList.remove('hidden');
+        foundBtn.classList.add('hidden');
+      }
+    }
+
+    // Close drawer
+    function closeDrawer() {
+      drawerOverlay.classList.remove('open');
+      drawer.classList.remove('open');
+      selectedChild = null;
+      endHold();
+    }
+
+    // Hold to trigger
+    function startHold() {
+      if (!selectedChild || selectedChild.status === 'missing' || holding) return;
+      holding = true;
+      holdStart = Date.now();
+      triggerText.textContent = 'KEEP HOLDING...';
+      tick();
+    }
+
+    function tick() {
+      if (!holding) return;
+      const progress = Math.min(1, (Date.now() - holdStart) / 750);
+      triggerFill.style.width = (progress * 100) + '%';
+      if (progress >= 1) {
+        broadcast();
+        endHold();
+      } else {
+        holdRAF = requestAnimationFrame(tick);
+      }
+    }
+
+    function endHold() {
+      if (holdRAF) cancelAnimationFrame(holdRAF);
+      holding = false;
+      triggerFill.style.width = '0%';
+      triggerText.textContent = 'HOLD TO REPORT MISSING';
+    }
+
+    function broadcast() {
+      if (!selectedChild) return;
+
+      selectedChild.status = 'missing';
+      const landmark = Beacon.nearestLandmark(selectedChild.x, selectedChild.y);
+
+      const alert = {
+        masterBandId: family.masterBandId,
+        childIndex: selectedChild.index,
+        childName: selectedChild.name || `Child ${selectedChild.index}`,
+        wristband: selectedChild.wristband,
+        landmark,
+        parentPhone: family.parentPhone,
+        timestamp: Date.now()
+      };
+
+      Beacon.setAlert(alert);
+      Beacon.addToAlertHistory(alert);
+      Beacon.triggerAlertNotification();
+      render();
+      updateDrawer();
+      renderAlertHistory();
+    }
+
+    // Found child
+    function foundChild() {
+      const currentAlert = Beacon.getAlert();
+      if (currentAlert) {
+        Beacon.resolveAlertInHistory(currentAlert.id || currentAlert.timestamp);
+      }
+      Beacon.clearAlert();
+      if (selectedChild) {
+        selectedChild.status = 'safe';
+      }
+      Beacon.playSuccessSound();
+      Beacon.vibrateShort();
+      render();
+      updateDrawer();
+      renderAlertHistory();
+    }
+
+    // Event listeners
+    drawerOverlay.addEventListener('click', closeDrawer);
+    closeDrawerBtn.addEventListener('click', closeDrawer);
+    foundBtn.addEventListener('click', foundChild);
+
+    triggerBtn.addEventListener('mousedown', startHold);
+    triggerBtn.addEventListener('mouseup', endHold);
+    triggerBtn.addEventListener('mouseleave', endHold);
+    triggerBtn.addEventListener('touchstart', e => { e.preventDefault(); startHold(); });
+    triggerBtn.addEventListener('touchend', endHold);
+
+    signoutBtn.addEventListener('click', () => {
+      Beacon.clearSession();
+      window.location.href = 'landing.html';
+    });
+
+    // Zone creation handlers
+    addZoneBtn.addEventListener('click', () => {
+      zoneNameInput.value = '';
+      zoneRadiusSlider.value = 15;
+      updateRadiusDisplay();
+      zoneModalOverlay.classList.add('open');
+    });
+
+    zoneCancelBtn.addEventListener('click', () => {
+      zoneModalOverlay.classList.remove('open');
+      placingZone = false;
+      addZoneBtn.classList.remove('active');
+    });
+
+    zoneRadiusSlider.addEventListener('input', updateRadiusDisplay);
+
+    function updateRadiusDisplay() {
+      const meters = Math.round(zoneRadiusSlider.value * 2);
+      zoneRadiusValue.textContent = `~${meters} meters`;
+    }
+
+    zoneSaveBtn.addEventListener('click', () => {
+      const name = zoneNameInput.value.trim() || 'Safe Zone';
+      const radius = parseInt(zoneRadiusSlider.value);
+
+      pendingZone = { name, radius };
+      placingZone = true;
+      zoneModalOverlay.classList.remove('open');
+      addZoneBtn.classList.add('active');
+      addZoneBtn.innerHTML = '<span class="zone-btn-icon">&#128205;</span> Tap map to place';
+    });
+
+    // Map click handler for zone placement
+    map.on('click', (e) => {
+      if (!placingZone || !pendingZone) return;
+
+      // Convert lat/lng back to x,y percentage
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+      const y = ((VENUE_BOUNDS.lat.max - lat) / (VENUE_BOUNDS.lat.max - VENUE_BOUNDS.lat.min)) * 100;
+      const x = ((lng - VENUE_BOUNDS.lng.min) / (VENUE_BOUNDS.lng.max - VENUE_BOUNDS.lng.min)) * 100;
+
+      const zone = {
+        name: pendingZone.name,
+        center: { x, y },
+        radius: pendingZone.radius
+      };
+
+      Beacon.saveSafeZone(family.masterBandId, zone);
+      Beacon.vibrateShort();
+
+      // Reset
+      placingZone = false;
+      pendingZone = null;
+      addZoneBtn.classList.remove('active');
+      addZoneBtn.innerHTML = '<span class="zone-btn-icon">&#11044;</span> Add Safe Zone';
+
+      renderSafeZones();
+      render();
+    });
+
+    // Zone warning dismiss
+    zoneWarningDismiss.addEventListener('click', () => {
+      zoneWarning.classList.add('hidden');
+    });
+
+    // History panel handlers
+    historyToggle.addEventListener('click', () => {
+      historyPanel.classList.toggle('open');
+      historyToggle.style.display = historyPanel.classList.contains('open') ? 'none' : 'flex';
+      renderAlertHistory();
+    });
+
+    historyClose.addEventListener('click', () => {
+      historyPanel.classList.remove('open');
+      historyToggle.style.display = 'flex';
+    });
+
+    // Panel drag functionality
+    const PANEL_MAX = 280;
+    const PANEL_MIN = 52;
+    let panelDragging = false;
+    let panelStartY = 0;
+    let panelStartHeight = 0;
+
+    function startPanelDrag(e) {
+      panelDragging = true;
+      panelStartY = e.touches ? e.touches[0].clientY : e.clientY;
+      panelStartHeight = childrenPanel.offsetHeight;
+      childrenPanel.classList.add('dragging');
+    }
+
+    function movePanelDrag(e) {
+      if (!panelDragging) return;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const delta = panelStartY - clientY;
+      const newHeight = Math.max(PANEL_MIN, Math.min(PANEL_MAX, panelStartHeight + delta));
+      childrenPanel.style.height = newHeight + 'px';
+    }
+
+    function endPanelDrag() {
+      if (!panelDragging) return;
+      panelDragging = false;
+      childrenPanel.classList.remove('dragging');
+
+      const currentHeight = childrenPanel.offsetHeight;
+      const midpoint = (PANEL_MAX + PANEL_MIN) / 2;
+
+      // Snap to expanded or collapsed
+      childrenPanel.style.height = '';
+      if (currentHeight < midpoint) {
+        childrenPanel.classList.add('collapsed');
+      } else {
+        childrenPanel.classList.remove('collapsed');
+      }
+
+      setTimeout(() => map.invalidateSize(), 300);
+    }
+
+    panelHeader.addEventListener('mousedown', startPanelDrag);
+    panelHeader.addEventListener('touchstart', startPanelDrag, { passive: true });
+    document.addEventListener('mousemove', movePanelDrag);
+    document.addEventListener('touchmove', movePanelDrag, { passive: true });
+    document.addEventListener('mouseup', endPanelDrag);
+    document.addEventListener('touchend', endPanelDrag);
+
+    // Listen for alerts
+    window.addEventListener('storage', (e) => {
+      if (e.key === Beacon.KEYS.ALERT) {
+        render();
+      }
+    });
+
+    // Simulate position drift
+    setInterval(() => {
+      family.children.forEach(child => {
+        if (child.status !== 'missing') {
+          const pos = Beacon.driftPosition(child.x, child.y);
+          child.x = pos.x;
+          child.y = pos.y;
+        }
+      });
+      render();
+    }, 2200);
+
+    // Initial render
+    render();
+    renderSafeZones();
+    renderAlertHistory();
+
+    // Fit map to show all markers
+    setTimeout(() => {
+      const bounds = family.children.map(c => toLatLng(c.x, c.y));
+      if (bounds.length > 0) {
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 17 });
+      }
+    }, 100);
+  </script>
+</body>
+</html>

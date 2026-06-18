@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beacon - Find Your Child in Seconds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0}
+  @keyframes beaconPulse{0%{transform:translate(-50%,-50%) scale(.5);opacity:.6}70%{opacity:0}100%{transform:translate(-50%,-50%) scale(2.6);opacity:0}}
+  @keyframes beaconBlink{0%,100%{opacity:1}50%{opacity:.45}}
+  @keyframes ledGlow{0%,100%{opacity:1}50%{opacity:.82}}
+  @keyframes driftA{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-30%,-70%)}}
+  @keyframes driftB{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-72%,-32%)}}
+  @keyframes driftC{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-58%,-78%)}}
+  a{text-decoration:none;color:inherit}
+</style>
+</head>
+<body>
+<div style="--accent:#c65d4e;--accent-deep:#9c241f;background:#f3f1ee;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#1b1a18;-webkit-font-smoothing:antialiased;overflow-x:hidden">
+
+  <!-- ===== NAV ===== -->
+  <header style="position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(23,20,15,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08)">
+    <div style="display:flex;align-items:center;gap:12px;color:#f3f1ee">
+      <div style="position:relative;width:26px;height:26px;display:grid;place-items:center">
+        <span style="position:absolute;width:26px;height:26px;border-radius:50%;background:var(--accent);opacity:.22;animation:beaconPulse 2.4s ease-out infinite"></span>
+        <span style="width:11px;height:11px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)"></span>
+      </div>
+      <span style="font-weight:700;font-size:17px;letter-spacing:.18em">BEACON</span>
+    </div>
+    <nav style="display:flex;align-items:center;gap:34px;font-size:13.5px;color:#bdb7ad;font-weight:500">
+      <a href="#how" style="transition:color .2s">How it works</a>
+      <a href="#hardware">Hardware</a>
+      <a href="#features">Features</a>
+      <a href="index.html" style="display:flex;align-items:center;gap:8px;background:var(--accent);color:#fff;font-weight:600;padding:9px 17px;border-radius:10px">Sign in</a>
+    </nav>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section style="position:relative;background:#17140f;color:#f3f1ee;overflow:hidden">
+    <!-- faint grid -->
+    <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:34px 34px;pointer-events:none"></div>
+    <div style="position:relative;max-width:1240px;margin:0 auto;padding:72px 40px 80px;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center">
+      <!-- copy -->
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:9px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.05em;color:#cfc7ba;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:7px 13px;border-radius:999px;margin-bottom:26px">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)"></span>
+          Works with zero internet
+        </div>
+        <h1 style="font-size:60px;line-height:1.03;letter-spacing:-.025em;font-weight:700;margin:0;text-wrap:balance">Find your child in seconds — even when the network is dead.</h1>
+        <p style="font-size:18px;line-height:1.55;color:#bdb7ad;margin:24px 0 0;max-width:50ch">Beacon is a wristband-and-radio safety net for crowds of thousands. Children wear a band, parents wear a master band, and everyone stays linked over long-range radio — no apps, no signal, no panic.</p>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:34px">
+          <a href="index.html" style="background:var(--accent);color:#fff;font-weight:600;font-size:15px;padding:15px 26px;border-radius:13px">Sign in to track</a>
+          <a href="#how" style="border:1px solid rgba(255,255,255,.2);color:#f3f1ee;font-weight:600;font-size:15px;padding:15px 24px;border-radius:13px">See how it works</a>
+        </div>
+        <div style="display:flex;gap:30px;margin-top:46px">
+          <div><div style="font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace">10 km</div><div style="font-size:12.5px;color:#8a857d;margin-top:3px">LoRa radio range</div></div>
+          <div style="width:1px;background:rgba(255,255,255,.1)"></div>
+          <div><div style="font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace">&lt;2 s</div><div style="font-size:12.5px;color:#8a857d;margin-top:3px">band to parent alert</div></div>
+          <div style="width:1px;background:rgba(255,255,255,.1)"></div>
+          <div><div style="font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace">2G</div><div style="font-size:12.5px;color:#8a857d;margin-top:3px">map loads on a whisper</div></div>
+        </div>
+      </div>
+
+      <!-- hero visual: phone on schematic map -->
+      <div style="position:relative;display:flex;justify-content:center">
+        <!-- schematic map backdrop -->
+        <div style="position:absolute;inset:-30px -10px;border:1.5px dashed rgba(255,255,255,.14);border-radius:24px"></div>
+        <!-- floating child dots around -->
+        <div style="position:absolute;left:14%;top:18%;z-index:2"><span style="position:absolute;left:50%;top:50%;width:22px;height:22px;border-radius:50%;background:#2f8f5b;animation:beaconPulse 2.6s ease-out infinite"></span><span style="position:relative;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#2f8f5b;border:2.5px solid #17140f;color:#fff;font-size:12px;font-weight:700">B</span></div>
+        <div style="position:absolute;right:8%;top:40%;z-index:2"><span style="position:absolute;left:50%;top:50%;width:22px;height:22px;border-radius:50%;background:#2f8f5b;animation:beaconPulse 2.6s ease-out infinite;animation-delay:1.1s"></span><span style="position:relative;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#2f8f5b;border:2.5px solid #17140f;color:#fff;font-size:12px;font-weight:700">Z</span></div>
+        <!-- the phone -->
+        <div style="position:relative;z-index:3;width:268px;background:#0c0a07;border-radius:40px;padding:9px;box-shadow:0 50px 90px -30px rgba(0,0,0,.7)">
+          <div style="position:relative;background:#f3f1ee;border-radius:32px;overflow:hidden;height:540px;display:flex;flex-direction:column">
+            <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:104px;height:22px;background:#0c0a07;border-radius:0 0 14px 14px;z-index:30"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:26px 15px 11px;background:#fffdfb;border-bottom:1px solid #e9e5df">
+              <div style="line-height:1.15"><div style="font-weight:700;font-size:14px">Hi, Amina</div><div style="font-size:10.5px;color:#8a857d;font-family:'IBM Plex Mono',monospace">3 children · live</div></div>
+              <span style="font-size:10px;color:#2f8f5b;font-weight:600;display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#2f8f5b;animation:beaconBlink 1.4s steps(1) infinite"></span>Tracking</span>
+            </div>
+            <div style="position:relative;flex:1;background:#ece7df;background-image:linear-gradient(#e3ddd2 1px,transparent 1px),linear-gradient(90deg,#e3ddd2 1px,transparent 1px);background-size:22px 22px">
+              <div style="position:absolute;inset:11px;border:1.5px dashed #c4bcae;border-radius:14px"></div>
+              <div style="position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);width:46%;height:42px;background:#d6ccba;border:1px solid #c4b8a2;border-radius:9px;display:grid;place-items:center;font-size:8.5px;color:#74695a;font-weight:600;text-align:center">Main Courtyard</div>
+              <div style="position:absolute;left:40%;top:34%;animation:driftA 7s ease-in-out infinite;z-index:5"><span style="position:absolute;left:50%;top:50%;width:24px;height:24px;border-radius:50%;background:#2f8f5b;animation:beaconPulse 2.6s ease-out infinite"></span><span style="position:relative;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#2f8f5b;border:2.5px solid #fff;color:#fff;font-size:11px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.3)">B</span></div>
+              <div style="position:absolute;left:64%;top:60%;animation:driftB 8s ease-in-out infinite;z-index:5"><span style="position:absolute;left:50%;top:50%;width:24px;height:24px;border-radius:50%;background:#2f8f5b;animation:beaconPulse 2.6s ease-out infinite;animation-delay:.8s"></span><span style="position:relative;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#2f8f5b;border:2.5px solid #fff;color:#fff;font-size:11px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.3)">Z</span></div>
+              <div style="position:absolute;left:34%;top:70%;animation:driftC 9s ease-in-out infinite;z-index:5"><span style="position:absolute;left:50%;top:50%;width:24px;height:24px;border-radius:50%;background:#2f8f5b;animation:beaconPulse 2.6s ease-out infinite;animation-delay:1.5s"></span><span style="position:relative;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#2f8f5b;border:2.5px solid #fff;color:#fff;font-size:11px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.3)">O</span></div>
+            </div>
+            <div style="flex-shrink:0;background:#fffdfb;border-top:1px solid #e9e5df">
+              <div style="display:flex;align-items:center;gap:9px;padding:10px 14px;border-bottom:1px solid #f3f0eb"><div style="width:28px;height:28px;border-radius:50%;background:#2f8f5b;color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px">B</div><div style="flex:1;font-size:12.5px;font-weight:600">Bilal</div><span style="font-size:9.5px;font-weight:700;color:#2f8f5b;background:#e8f4ec;border:1px solid #c9e6d4;border-radius:6px;padding:4px 7px">LIVE</span></div>
+              <div style="display:flex;align-items:center;gap:9px;padding:10px 14px"><div style="width:28px;height:28px;border-radius:50%;background:#2f8f5b;color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px">Z</div><div style="flex:1;font-size:12.5px;font-weight:600">Zaynab</div><span style="font-size:9.5px;font-weight:700;color:#2f8f5b;background:#e8f4ec;border:1px solid #c9e6d4;border-radius:6px;padding:4px 7px">LIVE</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PROBLEM STRIP ===== -->
+  <section style="background:#fffdfb;border-bottom:1px solid #e4e0da">
+    <div style="max-width:1240px;margin:0 auto;padding:54px 40px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px">
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:.04em;margin-bottom:10px">01 — THE CROWD</div>
+        <p style="font-size:15.5px;line-height:1.55;color:#534f49;margin:0">A child slips out of sight in a sea of thousands. Phones won't load. Calls won't connect. Minutes feel like hours.</p>
+      </div>
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:.04em;margin-bottom:10px">02 — THE GAP</div>
+        <p style="font-size:15.5px;line-height:1.55;color:#534f49;margin:0">Cellular networks buckle under congestion exactly when you need them most. GPS trackers that depend on mobile data go dark.</p>
+      </div>
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:.04em;margin-bottom:10px">03 — BEACON</div>
+        <p style="font-size:15.5px;line-height:1.55;color:#534f49;margin:0">Long-range radio bands that bypass the internet entirely. A button-press from the parent's wrist reaches security in seconds.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <section id="how" style="max-width:1240px;margin:0 auto;padding:84px 40px">
+    <div style="text-align:center;max-width:62ch;margin:0 auto 56px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;color:var(--accent);margin-bottom:14px">HOW IT WORKS</div>
+      <h2 style="font-size:42px;line-height:1.1;letter-spacing:-.02em;font-weight:700;margin:0;text-wrap:balance">Three pieces. One unbreakable link.</h2>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+      <!-- step 1 -->
+      <div style="background:#fffdfb;border:1px solid #e4e0da;border-radius:18px;padding:30px 28px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:#a39d94">STEP 01</span>
+          <div style="width:36px;height:36px;border-radius:50%;background:#17140f;color:#fff;display:grid;place-items:center;font-weight:700;font-family:'IBM Plex Mono',monospace">1</div>
+        </div>
+        <!-- wristband viz -->
+        <div style="display:flex;align-items:center;gap:10px;background:#f0ede8;border:1px solid #e4e0da;border-radius:12px;padding:14px;margin-bottom:20px">
+          <div style="width:34px;height:34px;border-radius:9px;background:#2f8f5b;color:#fff;display:grid;place-items:center;font-weight:700;font-size:15px;flex-shrink:0">B</div>
+          <div><div style="font-size:10px;color:#a39d94;font-family:'IBM Plex Mono',monospace">WRISTBAND ID</div><div style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;letter-spacing:.1em">K7F2Q</div></div>
+        </div>
+        <h3 style="font-size:19px;font-weight:700;margin:0 0 8px">Enrol at the desk</h3>
+        <p style="font-size:14px;line-height:1.55;color:#6b6863;margin:0">Volunteers register each family in seconds. Every child's wristband gets an index linked to the parent's master band — no accounts, no typing for parents.</p>
+      </div>
+
+      <!-- step 2 -->
+      <div style="background:#fffdfb;border:1px solid #e4e0da;border-radius:18px;padding:30px 28px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:#a39d94">STEP 02</span>
+          <div style="width:36px;height:36px;border-radius:50%;background:#17140f;color:#fff;display:grid;place-items:center;font-weight:700;font-family:'IBM Plex Mono',monospace">2</div>
+        </div>
+        <!-- radio viz -->
+        <div style="display:flex;align-items:center;justify-content:center;gap:6px;background:#17140f;border-radius:12px;padding:18px 14px;margin-bottom:20px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#cfc7ba">BAND</span>
+          <span style="flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--accent) 0 6px,transparent 6px 12px)"></span>
+          <span style="font-size:14px">📡</span>
+          <span style="flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--accent) 0 6px,transparent 6px 12px)"></span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#cfc7ba">GATEWAY</span>
+        </div>
+        <h3 style="font-size:19px;font-weight:700;margin:0 0 8px">Talk over radio, not data</h3>
+        <p style="font-size:14px;line-height:1.55;color:#6b6863;margin:0">Bands broadcast tiny location packets over long-range LoRa to on-site gateways. When cellular fails, raw SMS is the fallback — never congested mobile data.</p>
+      </div>
+
+      <!-- step 3 -->
+      <div style="background:#fffdfb;border:1px solid #e4e0da;border-radius:18px;padding:30px 28px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:#a39d94">STEP 03</span>
+          <div style="width:36px;height:36px;border-radius:50%;background:#17140f;color:#fff;display:grid;place-items:center;font-weight:700;font-family:'IBM Plex Mono',monospace">3</div>
+        </div>
+        <!-- map ping viz -->
+        <div style="position:relative;height:62px;background:#ece7df;background-image:linear-gradient(#e3ddd2 1px,transparent 1px),linear-gradient(90deg,#e3ddd2 1px,transparent 1px);background-size:18px 18px;border:1px solid #e4e0da;border-radius:12px;margin-bottom:20px;overflow:hidden">
+          <div style="position:absolute;left:50%;top:50%"><span style="position:absolute;left:50%;top:50%;width:22px;height:22px;border-radius:50%;background:var(--accent);animation:beaconPulse 1.8s ease-out infinite"></span><span style="position:relative;display:block;width:14px;height:14px;border-radius:50%;background:var(--accent);border:2.5px solid #fff;transform:translate(-50%,-50%)"></span></div>
+        </div>
+        <h3 style="font-size:19px;font-weight:700;margin:0 0 8px">Parents see everything live</h3>
+        <p style="font-size:14px;line-height:1.55;color:#6b6863;margin:0">Sign in with a phone number and one-time code. Watch every child move on the map in real time — and get an instant alert the moment a band is triggered.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HARDWARE SHOWCASE ===== -->
+  <section id="hardware" style="background:#17140f;color:#f3f1ee">
+    <div style="max-width:1240px;margin:0 auto;padding:84px 40px;display:grid;grid-template-columns:.9fr 1.1fr;gap:64px;align-items:center">
+      <!-- band visual -->
+      <div style="display:flex;justify-content:center">
+        <div style="width:300px;background:#0c0a07;border:1px solid #2a251d;border-radius:22px;padding:26px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <div><div style="font-size:11px;letter-spacing:.14em;color:#7d756a;font-weight:600">MASTER BAND</div><div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#cfc7ba;margin-top:3px">MB-00592</div></div>
+            <span style="font-size:11px;font-family:'IBM Plex Mono',monospace;color:#5fae7e;display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:#5fae7e;box-shadow:0 0 8px #5fae7e"></span>LoRa</span>
+          </div>
+          <div style="background:#070504;border:1px solid #2a251d;border-radius:14px;padding:22px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+            <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:10px;letter-spacing:.18em;color:#5c5448">INDEX</span><span style="font-size:12px;color:#9b9384;font-family:'IBM Plex Mono',monospace">→ Bilal</span></div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:68px;font-weight:600;line-height:.85;color:var(--accent);text-shadow:0 0 18px var(--accent);animation:ledGlow 2s ease-in-out infinite">1</div>
+          </div>
+          <div style="display:flex;gap:11px">
+            <div style="flex:1;background:#241f18;border:1px solid #3a3328;color:#e9e3d8;font-weight:600;font-size:12px;letter-spacing:.06em;padding:13px;border-radius:11px;text-align:center;font-family:'IBM Plex Mono',monospace">SELECT</div>
+            <div style="flex:1.5;background:var(--accent-deep);border:1px solid var(--accent);color:#fff;font-weight:700;font-size:12px;letter-spacing:.06em;padding:13px;border-radius:11px;text-align:center;font-family:'IBM Plex Mono',monospace">HOLD TO TRIGGER</div>
+          </div>
+        </div>
+      </div>
+      <!-- copy -->
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;color:var(--accent);margin-bottom:16px">THE HARDWARE</div>
+        <h2 style="font-size:40px;line-height:1.1;letter-spacing:-.02em;font-weight:700;margin:0;text-wrap:balance">Two buttons. That's the whole interface.</h2>
+        <p style="font-size:16.5px;line-height:1.55;color:#bdb7ad;margin:22px 0 30px;max-width:48ch">Built for a parent in distress, not a power user. A tiny display, a Select button to pick the child, and a Trigger button to raise the alarm. No menus, no screens to read.</p>
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <span style="font-family:'IBM Plex Mono',monospace;color:var(--accent);font-weight:600;font-size:14px;margin-top:1px">▸</span>
+            <div><div style="font-weight:600;font-size:15px">Tap to cycle</div><div style="font-size:13.5px;color:#8a857d;line-height:1.5">Select steps through each child by index — 1, 2, 3 — on the on-band display.</div></div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <span style="font-family:'IBM Plex Mono',monospace;color:var(--accent);font-weight:600;font-size:14px;margin-top:1px">▸</span>
+            <div><div style="font-weight:600;font-size:15px">Hold to broadcast</div><div style="font-size:13.5px;color:#8a857d;line-height:1.5">A long press fires a missing-child packet for that child straight to the network.</div></div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <span style="font-family:'IBM Plex Mono',monospace;color:var(--accent);font-weight:600;font-size:14px;margin-top:1px">▸</span>
+            <div><div style="font-weight:600;font-size:15px">Days of battery</div><div style="font-size:13.5px;color:#8a857d;line-height:1.5">Low-power radio and a featherweight payload mean a single charge lasts the whole event.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURES GRID ===== -->
+  <section id="features" style="max-width:1240px;margin:0 auto;padding:84px 40px">
+    <div style="max-width:58ch;margin:0 0 50px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;color:var(--accent);margin-bottom:14px">BUILT FOR THE WORST DAY</div>
+      <h2 style="font-size:40px;line-height:1.1;letter-spacing:-.02em;font-weight:700;margin:0;text-wrap:balance">Every decision optimised for chaos.</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div style="background:#fffdfb;border:1px solid #e4e0da;border-radius:16px;padding:26px">
+        <div style="width:40px;height:40px;border-radius:11px;background:#f0ede8;border:1px solid #e4e0da;display:grid;place-items:center;margin-bottom:16px"><span style="width:14px;height:14px;border-radius:50%;background:var(--accent)"></span></div>
+        <h3 style="font-size:17px;font-weight:700;margin:0 0 7px">Internet-optional by design</h3>
+        <p style="font-size:13.5px;line-height:1.55;color:#6b6863;margin:0">LoRa first, raw SMS as fallback. Nothing depends on the mobile data that always dies in a crowd.</p>
+      </div>
+      <div style="background:#fffdfb;border:1px solid #e4e0da;border-radius:16px;padding:26px">
+        <div style="width:40px;height:40px;border-radius:11px;background:#f0ede8;border:1px solid #e4e0da;display:grid;place-items:center;margin-bottom:16px"><span style="width:14px;height:14px;background:var(--accent);transform:rotate(45deg)"></span></div>
+        <h3 style="font-size:17px;font-weight:700;margin:0 0 7px">Landmark geofencing</h3>
+        <p style="font-size:13.5px;line-height:1.55;color:#6b6863;margin:0">Coordinates resolve to names people actually use — "near Gate 7", "by Car Park 3" — not raw lat/long.</p>
+      </div>
+      <div style="background:#fffdfb;border:1px solid #e4e0da;border-radius:16px;padding:26px">
+        <div style="width:40px;height:40px;border-radius:11px;background:#f0ede8;border:1px solid #e4e0da;display:grid;place-items:center;margin-bottom:16px"><span style="width:14px;height:14px;border-radius:3px;border:3px solid var(--accent)"></span></div>
+        <h3 style="font-size:17px;font-weight:700;margin:0 0 7px">Unlimited children per family</h3>
+        <p style="font-size:13.5px;line-height:1.55;color:#6b6863;margin:0">Add as many bands as a parent needs. Each gets its own index, mapped to a physical wristband.</p>
+      </div>
+      <div style="background:#fffdfb;border:1px solid #e4e0da;border-radius:16px;padding:26px">
+        <div style="width:40px;height:40px;border-radius:11px;background:#f0ede8;border:1px solid #e4e0da;display:grid;place-items:center;margin-bottom:16px"><span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;color:var(--accent)">2G</span></div>
+        <h3 style="font-size:17px;font-weight:700;margin:0 0 7px">Loads on a congested 2G link</h3>
+        <p style="font-size:13.5px;line-height:1.55;color:#6b6863;margin:0">The parent map is featherweight — it opens from an SMS link even when the network is on its knees.</p>
+      </div>
+      <div style="background:#fffdfb;border:1px solid #e4e0da;border-radius:16px;padding:26px">
+        <div style="width:40px;height:40px;border-radius:11px;background:#f0ede8;border:1px solid #e4e0da;display:grid;place-items:center;margin-bottom:16px"><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:var(--accent)">···</span></div>
+        <h3 style="font-size:17px;font-weight:700;margin:0 0 7px">One-time-code sign in</h3>
+        <p style="font-size:13.5px;line-height:1.55;color:#6b6863;margin:0">No passwords, no app install. A phone number and an SMS code is the whole login.</p>
+      </div>
+      <div style="background:#fffdfb;border:1px solid #e4e0da;border-radius:16px;padding:26px">
+        <div style="width:40px;height:40px;border-radius:11px;background:#f0ede8;border:1px solid #e4e0da;display:grid;place-items:center;margin-bottom:16px"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent)"></span></div>
+        <h3 style="font-size:17px;font-weight:700;margin:0 0 7px">Instant trigger pipeline</h3>
+        <p style="font-size:13.5px;line-height:1.55;color:#6b6863;margin:0">A held button flips the child to missing and texts the parent in seconds — security sees it at the same moment.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA ===== -->
+  <section style="max-width:1240px;margin:0 auto;padding:0 40px 84px">
+    <div style="position:relative;background:var(--accent);border-radius:24px;padding:64px 56px;overflow:hidden;color:#fff">
+      <div style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:280px;height:280px;border-radius:50%;border:1.5px solid rgba(255,255,255,.25)"></div>
+      <div style="position:absolute;right:50px;top:50%;transform:translateY(-50%);width:140px;height:140px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35)"></div>
+      <div style="position:absolute;right:108px;top:50%;transform:translate(0,-50%);width:24px;height:24px;border-radius:50%;background:#fff"></div>
+      <div style="position:relative;max-width:32ch">
+        <h2 style="font-size:38px;line-height:1.1;letter-spacing:-.02em;font-weight:700;margin:0;text-wrap:balance">Ready to track your children?</h2>
+        <p style="font-size:16px;line-height:1.55;opacity:.92;margin:18px 0 28px">Sign in with your registered phone number to see all your children on the live map.</p>
+        <div style="display:flex;gap:13px">
+          <a href="index.html" style="background:#fff;color:var(--accent);font-weight:700;font-size:15px;padding:14px 26px;border-radius:13px">Sign in now</a>
+          <a href="admin/index.html" style="border:1px solid rgba(255,255,255,.5);color:#fff;font-weight:600;font-size:15px;padding:14px 24px;border-radius:13px">I'm event staff</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer style="background:#17140f;color:#bdb7ad">
+    <div style="max-width:1240px;margin:0 auto;padding:48px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:24px">
+      <div style="display:flex;align-items:center;gap:12px;color:#f3f1ee">
+        <div style="position:relative;width:22px;height:22px;display:grid;place-items:center"><span style="position:absolute;width:22px;height:22px;border-radius:50%;background:var(--accent);opacity:.22;animation:beaconPulse 2.4s ease-out infinite"></span><span style="width:9px;height:9px;border-radius:50%;background:var(--accent)"></span></div>
+        <span style="font-weight:700;font-size:15px;letter-spacing:.18em">BEACON</span>
+      </div>
+      <nav style="display:flex;gap:28px;font-size:13.5px">
+        <a href="#how">How it works</a><a href="#hardware">Hardware</a><a href="#features">Features</a><a href="admin/index.html">Admin</a>
+      </nav>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#7d756a">Crowd Child Safety System</span>
+    </div>
+  </footer>
+
+</div>
+
+<script src="js/app.js"></script>
+<script>
+  // Check if already logged in, redirect to dashboard
+  const session = Beacon.getSession();
+  if (session && session.verified) {
+    window.location.href = 'dashboard.html';
+  }
+</script>
+</body>
+</html>
