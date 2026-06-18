@@ -17,13 +17,54 @@
   @keyframes driftB{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-72%,-32%)}}
   @keyframes driftC{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-58%,-78%)}}
   a{text-decoration:none;color:inherit}
+
+  /* Responsive styles */
+  @media (max-width: 1024px) {
+    .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+    .hero-visual { display: none !important; }
+    .problem-grid { grid-template-columns: 1fr !important; gap: 28px !important; }
+    .steps-grid { grid-template-columns: 1fr !important; }
+    .hardware-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+    .features-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  }
+
+  @media (max-width: 768px) {
+    .nav-header { padding: 14px 20px !important; }
+    .nav-links { display: none !important; }
+    .mobile-menu-btn { display: flex !important; }
+    .hero-section { padding: 48px 20px 56px !important; }
+    .hero-title { font-size: 36px !important; }
+    .hero-subtitle { font-size: 16px !important; }
+    .hero-cta { flex-direction: column !important; }
+    .hero-cta a { width: 100%; text-align: center; }
+    .hero-stats { flex-wrap: wrap !important; gap: 20px !important; }
+    .hero-stats > div:not(:first-child) { border-left: none !important; padding-left: 0 !important; }
+    .hero-stat-divider { display: none !important; }
+    .section-padding { padding: 56px 20px !important; }
+    .section-title { font-size: 32px !important; }
+    .features-grid { grid-template-columns: 1fr !important; }
+    .cta-section { padding: 0 20px 56px !important; }
+    .cta-inner { padding: 40px 24px !important; }
+    .cta-title { font-size: 28px !important; }
+    .cta-buttons { flex-direction: column !important; }
+    .cta-buttons a { width: 100%; text-align: center; }
+    .footer-inner { flex-direction: column !important; text-align: center !important; gap: 20px !important; }
+    .footer-nav { flex-wrap: wrap !important; justify-content: center !important; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-title { font-size: 28px !important; }
+    .hero-stats { flex-direction: column !important; align-items: flex-start !important; }
+    .step-card { padding: 22px 20px !important; }
+    .hardware-band { width: 100% !important; max-width: 280px !important; }
+  }
 </style>
 </head>
 <body>
 <div style="--accent:#c65d4e;--accent-deep:#9c241f;background:#f3f1ee;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#1b1a18;-webkit-font-smoothing:antialiased;overflow-x:hidden">
 
   <!-- ===== NAV ===== -->
-  <header style="position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(23,20,15,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08)">
+  <header class="nav-header" style="position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(23,20,15,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08)">
     <div style="display:flex;align-items:center;gap:12px;color:#f3f1ee">
       <div style="position:relative;width:26px;height:26px;display:grid;place-items:center">
         <span style="position:absolute;width:26px;height:26px;border-radius:50%;background:var(--accent);opacity:.22;animation:beaconPulse 2.4s ease-out infinite"></span>
@@ -31,7 +72,8 @@
       </div>
       <span style="font-weight:700;font-size:17px;letter-spacing:.18em">BEACON</span>
     </div>
-    <nav style="display:flex;align-items:center;gap:34px;font-size:13.5px;color:#bdb7ad;font-weight:500">
+    <button class="mobile-menu-btn" style="display:none;background:none;border:none;color:#f3f1ee;font-size:24px;cursor:pointer" onclick="document.querySelector('.nav-links').style.display=document.querySelector('.nav-links').style.display==='flex'?'none':'flex'">☰</button>
+    <nav class="nav-links" style="display:flex;align-items:center;gap:34px;font-size:13.5px;color:#bdb7ad;font-weight:500">
       <a href="#how" style="transition:color .2s">How it works</a>
       <a href="#hardware">Hardware</a>
       <a href="#features">Features</a>
@@ -43,30 +85,30 @@
   <section style="position:relative;background:#17140f;color:#f3f1ee;overflow:hidden">
     <!-- faint grid -->
     <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:34px 34px;pointer-events:none"></div>
-    <div style="position:relative;max-width:1240px;margin:0 auto;padding:72px 40px 80px;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center">
+    <div class="hero-grid hero-section" style="position:relative;max-width:1240px;margin:0 auto;padding:72px 40px 80px;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center">
       <!-- copy -->
       <div>
         <div style="display:inline-flex;align-items:center;gap:9px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.05em;color:#cfc7ba;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:7px 13px;border-radius:999px;margin-bottom:26px">
           <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)"></span>
           Works with zero internet
         </div>
-        <h1 style="font-size:60px;line-height:1.03;letter-spacing:-.025em;font-weight:700;margin:0;text-wrap:balance">Find your child in seconds — even when the network is dead.</h1>
-        <p style="font-size:18px;line-height:1.55;color:#bdb7ad;margin:24px 0 0;max-width:50ch">Beacon is a wristband-and-radio safety net for crowds of thousands. Children wear a band, parents wear a master band, and everyone stays linked over long-range radio — no apps, no signal, no panic.</p>
-        <div style="display:flex;align-items:center;gap:14px;margin-top:34px">
+        <h1 class="hero-title" style="font-size:60px;line-height:1.03;letter-spacing:-.025em;font-weight:700;margin:0;text-wrap:balance">Find your child in seconds — even when the network is dead.</h1>
+        <p class="hero-subtitle" style="font-size:18px;line-height:1.55;color:#bdb7ad;margin:24px 0 0;max-width:50ch">Beacon is a wristband-and-radio safety net for crowds of thousands. Children wear a band, parents wear a master band, and everyone stays linked over long-range radio — no apps, no signal, no panic.</p>
+        <div class="hero-cta" style="display:flex;align-items:center;gap:14px;margin-top:34px">
           <a href="index.html" style="background:var(--accent);color:#fff;font-weight:600;font-size:15px;padding:15px 26px;border-radius:13px">Sign in to track</a>
           <a href="#how" style="border:1px solid rgba(255,255,255,.2);color:#f3f1ee;font-weight:600;font-size:15px;padding:15px 24px;border-radius:13px">See how it works</a>
         </div>
-        <div style="display:flex;gap:30px;margin-top:46px">
+        <div class="hero-stats" style="display:flex;gap:30px;margin-top:46px">
           <div><div style="font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace">10 km</div><div style="font-size:12.5px;color:#8a857d;margin-top:3px">LoRa radio range</div></div>
-          <div style="width:1px;background:rgba(255,255,255,.1)"></div>
+          <div class="hero-stat-divider" style="width:1px;background:rgba(255,255,255,.1)"></div>
           <div><div style="font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace">&lt;2 s</div><div style="font-size:12.5px;color:#8a857d;margin-top:3px">band to parent alert</div></div>
-          <div style="width:1px;background:rgba(255,255,255,.1)"></div>
+          <div class="hero-stat-divider" style="width:1px;background:rgba(255,255,255,.1)"></div>
           <div><div style="font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace">2G</div><div style="font-size:12.5px;color:#8a857d;margin-top:3px">map loads on a whisper</div></div>
         </div>
       </div>
 
       <!-- hero visual: phone on schematic map -->
-      <div style="position:relative;display:flex;justify-content:center">
+      <div class="hero-visual" style="position:relative;display:flex;justify-content:center">
         <!-- schematic map backdrop -->
         <div style="position:absolute;inset:-30px -10px;border:1.5px dashed rgba(255,255,255,.14);border-radius:24px"></div>
         <!-- floating child dots around -->
@@ -99,7 +141,7 @@
 
   <!-- ===== PROBLEM STRIP ===== -->
   <section style="background:#fffdfb;border-bottom:1px solid #e4e0da">
-    <div style="max-width:1240px;margin:0 auto;padding:54px 40px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px">
+    <div class="problem-grid section-padding" style="max-width:1240px;margin:0 auto;padding:54px 40px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px">
       <div>
         <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:.04em;margin-bottom:10px">01 — THE CROWD</div>
         <p style="font-size:15.5px;line-height:1.55;color:#534f49;margin:0">A child slips out of sight in a sea of thousands. Phones won't load. Calls won't connect. Minutes feel like hours.</p>
@@ -116,15 +158,15 @@
   </section>
 
   <!-- ===== HOW IT WORKS ===== -->
-  <section id="how" style="max-width:1240px;margin:0 auto;padding:84px 40px">
+  <section id="how" class="section-padding" style="max-width:1240px;margin:0 auto;padding:84px 40px">
     <div style="text-align:center;max-width:62ch;margin:0 auto 56px">
       <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;color:var(--accent);margin-bottom:14px">HOW IT WORKS</div>
-      <h2 style="font-size:42px;line-height:1.1;letter-spacing:-.02em;font-weight:700;margin:0;text-wrap:balance">Three pieces. One unbreakable link.</h2>
+      <h2 class="section-title" style="font-size:42px;line-height:1.1;letter-spacing:-.02em;font-weight:700;margin:0;text-wrap:balance">Three pieces. One unbreakable link.</h2>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+    <div class="steps-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
       <!-- step 1 -->
-      <div style="background:#fffdfb;border:1px solid #e4e0da;border-radius:18px;padding:30px 28px">
+      <div class="step-card" style="background:#fffdfb;border:1px solid #e4e0da;border-radius:18px;padding:30px 28px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
           <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:#a39d94">STEP 01</span>
           <div style="width:36px;height:36px;border-radius:50%;background:#17140f;color:#fff;display:grid;place-items:center;font-weight:700;font-family:'IBM Plex Mono',monospace">1</div>
@@ -139,7 +181,7 @@
       </div>
 
       <!-- step 2 -->
-      <div style="background:#fffdfb;border:1px solid #e4e0da;border-radius:18px;padding:30px 28px">
+      <div class="step-card" style="background:#fffdfb;border:1px solid #e4e0da;border-radius:18px;padding:30px 28px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
           <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:#a39d94">STEP 02</span>
           <div style="width:36px;height:36px;border-radius:50%;background:#17140f;color:#fff;display:grid;place-items:center;font-weight:700;font-family:'IBM Plex Mono',monospace">2</div>
@@ -157,7 +199,7 @@
       </div>
 
       <!-- step 3 -->
-      <div style="background:#fffdfb;border:1px solid #e4e0da;border-radius:18px;padding:30px 28px">
+      <div class="step-card" style="background:#fffdfb;border:1px solid #e4e0da;border-radius:18px;padding:30px 28px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
           <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:#a39d94">STEP 03</span>
           <div style="width:36px;height:36px;border-radius:50%;background:#17140f;color:#fff;display:grid;place-items:center;font-weight:700;font-family:'IBM Plex Mono',monospace">3</div>
@@ -174,10 +216,10 @@
 
   <!-- ===== HARDWARE SHOWCASE ===== -->
   <section id="hardware" style="background:#17140f;color:#f3f1ee">
-    <div style="max-width:1240px;margin:0 auto;padding:84px 40px;display:grid;grid-template-columns:.9fr 1.1fr;gap:64px;align-items:center">
+    <div class="hardware-grid section-padding" style="max-width:1240px;margin:0 auto;padding:84px 40px;display:grid;grid-template-columns:.9fr 1.1fr;gap:64px;align-items:center">
       <!-- band visual -->
       <div style="display:flex;justify-content:center">
-        <div style="width:300px;background:#0c0a07;border:1px solid #2a251d;border-radius:22px;padding:26px">
+        <div class="hardware-band" style="width:300px;background:#0c0a07;border:1px solid #2a251d;border-radius:22px;padding:26px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
             <div><div style="font-size:11px;letter-spacing:.14em;color:#7d756a;font-weight:600">MASTER BAND</div><div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#cfc7ba;margin-top:3px">MB-00592</div></div>
             <span style="font-size:11px;font-family:'IBM Plex Mono',monospace;color:#5fae7e;display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:#5fae7e;box-shadow:0 0 8px #5fae7e"></span>LoRa</span>
@@ -195,7 +237,7 @@
       <!-- copy -->
       <div>
         <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;color:var(--accent);margin-bottom:16px">THE HARDWARE</div>
-        <h2 style="font-size:40px;line-height:1.1;letter-spacing:-.02em;font-weight:700;margin:0;text-wrap:balance">Two buttons. That's the whole interface.</h2>
+        <h2 class="section-title" style="font-size:40px;line-height:1.1;letter-spacing:-.02em;font-weight:700;margin:0;text-wrap:balance">Two buttons. That's the whole interface.</h2>
         <p style="font-size:16.5px;line-height:1.55;color:#bdb7ad;margin:22px 0 30px;max-width:48ch">Built for a parent in distress, not a power user. A tiny display, a Select button to pick the child, and a Trigger button to raise the alarm. No menus, no screens to read.</p>
         <div style="display:flex;flex-direction:column;gap:18px">
           <div style="display:flex;gap:14px;align-items:flex-start">
@@ -216,12 +258,12 @@
   </section>
 
   <!-- ===== FEATURES GRID ===== -->
-  <section id="features" style="max-width:1240px;margin:0 auto;padding:84px 40px">
+  <section id="features" class="section-padding" style="max-width:1240px;margin:0 auto;padding:84px 40px">
     <div style="max-width:58ch;margin:0 0 50px">
       <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;color:var(--accent);margin-bottom:14px">BUILT FOR THE WORST DAY</div>
-      <h2 style="font-size:40px;line-height:1.1;letter-spacing:-.02em;font-weight:700;margin:0;text-wrap:balance">Every decision optimised for chaos.</h2>
+      <h2 class="section-title" style="font-size:40px;line-height:1.1;letter-spacing:-.02em;font-weight:700;margin:0;text-wrap:balance">Every decision optimised for chaos.</h2>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+    <div class="features-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
       <div style="background:#fffdfb;border:1px solid #e4e0da;border-radius:16px;padding:26px">
         <div style="width:40px;height:40px;border-radius:11px;background:#f0ede8;border:1px solid #e4e0da;display:grid;place-items:center;margin-bottom:16px"><span style="width:14px;height:14px;border-radius:50%;background:var(--accent)"></span></div>
         <h3 style="font-size:17px;font-weight:700;margin:0 0 7px">Internet-optional by design</h3>
@@ -256,15 +298,15 @@
   </section>
 
   <!-- ===== CTA ===== -->
-  <section style="max-width:1240px;margin:0 auto;padding:0 40px 84px">
-    <div style="position:relative;background:var(--accent);border-radius:24px;padding:64px 56px;overflow:hidden;color:#fff">
+  <section class="cta-section" style="max-width:1240px;margin:0 auto;padding:0 40px 84px">
+    <div class="cta-inner" style="position:relative;background:var(--accent);border-radius:24px;padding:64px 56px;overflow:hidden;color:#fff">
       <div style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:280px;height:280px;border-radius:50%;border:1.5px solid rgba(255,255,255,.25)"></div>
       <div style="position:absolute;right:50px;top:50%;transform:translateY(-50%);width:140px;height:140px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35)"></div>
       <div style="position:absolute;right:108px;top:50%;transform:translate(0,-50%);width:24px;height:24px;border-radius:50%;background:#fff"></div>
       <div style="position:relative;max-width:32ch">
-        <h2 style="font-size:38px;line-height:1.1;letter-spacing:-.02em;font-weight:700;margin:0;text-wrap:balance">Ready to track your children?</h2>
+        <h2 class="cta-title" style="font-size:38px;line-height:1.1;letter-spacing:-.02em;font-weight:700;margin:0;text-wrap:balance">Ready to track your children?</h2>
         <p style="font-size:16px;line-height:1.55;opacity:.92;margin:18px 0 28px">Sign in with your registered phone number to see all your children on the live map.</p>
-        <div style="display:flex;gap:13px">
+        <div class="cta-buttons" style="display:flex;gap:13px">
           <a href="index.html" style="background:#fff;color:var(--accent);font-weight:700;font-size:15px;padding:14px 26px;border-radius:13px">Sign in now</a>
           <a href="admin/index.html" style="border:1px solid rgba(255,255,255,.5);color:#fff;font-weight:600;font-size:15px;padding:14px 24px;border-radius:13px">I'm event staff</a>
         </div>
@@ -274,12 +316,12 @@
 
   <!-- ===== FOOTER ===== -->
   <footer style="background:#17140f;color:#bdb7ad">
-    <div style="max-width:1240px;margin:0 auto;padding:48px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:24px">
+    <div class="footer-inner" style="max-width:1240px;margin:0 auto;padding:48px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:24px">
       <div style="display:flex;align-items:center;gap:12px;color:#f3f1ee">
         <div style="position:relative;width:22px;height:22px;display:grid;place-items:center"><span style="position:absolute;width:22px;height:22px;border-radius:50%;background:var(--accent);opacity:.22;animation:beaconPulse 2.4s ease-out infinite"></span><span style="width:9px;height:9px;border-radius:50%;background:var(--accent)"></span></div>
         <span style="font-weight:700;font-size:15px;letter-spacing:.18em">BEACON</span>
       </div>
-      <nav style="display:flex;gap:28px;font-size:13.5px">
+      <nav class="footer-nav" style="display:flex;gap:28px;font-size:13.5px">
         <a href="#how">How it works</a><a href="#hardware">Hardware</a><a href="#features">Features</a><a href="admin/index.html">Admin</a>
       </nav>
       <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#7d756a">Crowd Child Safety System</span>
