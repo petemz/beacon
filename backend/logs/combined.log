@@ -1,0 +1,7 @@
+{"level":"info","message":"Server is now running on 4000","service":"squad backend","timestamp":"2026-05-11T14:46:49.968Z"}
+{"level":"info","message":"SIGTERM received. Shutting down gracefully...","service":"squad backend","timestamp":"2026-05-11T14:47:34.313Z"}
+{"level":"info","message":"Server is now running on PORT 4000","service":"squad backend","timestamp":"2026-05-11T14:47:36.660Z"}
+{"level":"info","message":"SIGTERM received. Shutting down gracefully...","service":"squad backend","timestamp":"2026-05-11T14:47:40.143Z"}
+{"level":"info","message":"Server is now running on PORT 4000","service":"squad backend","timestamp":"2026-05-11T14:47:42.148Z"}
+{"level":"info","message":"Server is now running on PORT 4000","service":"squad backend","timestamp":"2026-06-16T23:35:15.385Z"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"squad backend","timestamp":"2026-06-16T23:36:19.064Z"}
